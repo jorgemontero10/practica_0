@@ -14,9 +14,6 @@ Vagrant.configure("2") do |config|
   # the path on the host to the actual folder. The second argument is
   # the path on the guest to mount the folder. And the optional third
   # argument is a set of non-required options.
-  ##### NOTA: para usar a tua páxina web modificada cambia a ruta do primeiro argumento
-  ##### pola do teu cartafol html ou copia o teu index.html dentro do cartafol html 
-  ##### deste proxecto
   config.vm.synced_folder "./html", "/var/www/html"
 
   config.vm.provider "virtualbox" do |vb|
