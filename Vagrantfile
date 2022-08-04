@@ -1,31 +1,40 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+# require a Vagrant recent version
+Vagrant.require_version ">= 2.2.0"
+
 Vagrant.configure("2") do |config|
 
-  config.vm.box = "hashicorp/bionic64"
+  # Alpine Linux box
+  config.vm.box = "boxomatic/alpine-3.16"
+  config.vm.box_check_update = false
+
+  # VBoxGuestAdditions auto update
+  config.vbguest.auto_update = false
 
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine and only allow access
   # via 127.0.0.1 to disable public access
   config.vm.network "forwarded_port", guest: 80, host: 8080, host_ip: "127.0.0.1"
 
-  # Share an additional folder to the guest VM. The first argument is
+  # Share additional folders to the guest VM. The first argument is
   # the path on the host to the actual folder. The second argument is
-  # the path on the guest to mount the folder. And the optional third
-  # argument is a set of non-required options.
-  config.vm.synced_folder "./html", "/var/www/html"
+  # the path on the guest to mount the folder.
+  config.vm.synced_folder ".", "/vagrant"
+  config.vm.synced_folder "html", "/var/www/html"
 
   config.vm.provider "virtualbox" do |vb|
      # Customize the amount of memory on the VM:
-     vb.memory = "1024"
+     vb.memory = "512"
   end
 
-  # Enable provisioning with a shell script. Additional provisioners such as
-  # Ansible, Chef, Docker, Puppet and Salt are also available. Please see the
-  # documentation for more information about their specific syntax and use.
+  # Install Apache with a shell script
   config.vm.provision "shell", inline: <<-SHELL
-     apt-get update
-     apt-get install -y apache2
-   SHELL
+    apk update
+    apk add apache2
+    sed -i 's|localhost/htdocs|html|' /etc/apache2/httpd.conf
+    rc-service apache2 start
+    rc-update add apache2
+  SHELL
 end
